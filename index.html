@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday!</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .hidden { display: none !important; }
+
+    /* START SCREEN */
+
+    .start-screen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #111827, #7c2d12, #be123c);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .start-screen h2 {
+      font-size: 2em;
+      margin-bottom: 25px;
+    }
+
+    .start-screen button {
+      border: none;
+      padding: 18px 28px;
+      border-radius: 999px;
+      font-size: 1.1em;
+      font-weight: bold;
+      cursor: pointer;
+      background: white;
+      color: #be123c;
+    }
+
+    /* MAIN */
+
+    .main-content {
+      padding: 40px 20px 80px;
+      position: relative;
+    }
+
+    h1 {
+      margin-top: 40px;
+      font-size: 3em;
+      animation: pop 1.2s infinite alternate;
+    }
+
+    .hint {
+      margin-top: 30px;
+      font-size: 1.1em;
+    }
+
+    /* GALLERY */
+
+    .gallery-wrap {
+      position: relative;
+      margin-top: 30px;
+    }
+
+    .gallery {
+      display: flex;
+      justify-content: center;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .photo-card {
+      position: relative;
+      width: 260px;
+      height: 340px;
+      border-radius: 24px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    }
+
+    .cover,
+    .meme-photo,
+    .real-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .cover {
+      z-index: 3;
+      background: linear-gradient(135deg, #be123c, #fb7185);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    .meme-photo,
+    .real-photo {
+      object-fit: cover;
+      opacity: 0;
+    }
+
+    .real-photo { z-index: 1; }
+    .meme-photo { z-index: 2; }
+
+    .photo-card.revealed .cover {
+      animation: coverOut 0.5s ease forwards;
+    }
+
+    .photo-card.revealed .meme-photo {
+      animation: memeReveal 5s ease forwards;
+    }
+
+    .photo-card.revealed .real-photo {
+      animation: realReveal 5s ease forwards;
+    }
+
+    /* BONUS MEME */
+
+    .bonus-popup {
+	  position: fixed;
+	  inset: 0;
+	  z-index: 40;
+	  display: none;
+	  justify-content: center;
+	  align-items: center;
+	  pointer-events: none;
+	}
+
+	.bonus-popup.show {
+	  display: flex;
+	  animation: bonusOverlay 5s ease forwards;
+	}
+
+	.bonus-box {
+	  position: relative;
+	  animation: bonusEntrance 5s ease forwards;
+	}
+
+	.bonus-box::before {
+	  content: "";
+	  position: absolute;
+	  inset: -25px;
+	  border-radius: 30px;
+	  background:
+		radial-gradient(circle,
+		rgba(255,255,255,0.9),
+		rgba(255,255,255,0));
+	  filter: blur(25px);
+	  z-index: -1;
+	}
+
+	.bonus-box img {
+	  width: min(78vw, 520px);
+	  max-height: 75vh;
+	  object-fit: contain;
+	  border-radius: 28px;
+
+	  box-shadow:
+		0 0 40px rgba(255,255,255,0.4),
+		0 0 90px rgba(255,0,128,0.35);
+
+	  border: 4px solid rgba(255,255,255,0.25);
+	}
+
+    /* FINAL MESSAGE */
+
+    .final-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.4);
+      font-size: clamp(2rem, 9vw, 5rem);
+      font-weight: 900;
+      opacity: 0;
+      z-index: 50;
+      pointer-events: none;
+      width: 95vw;
+
+      background: linear-gradient(
+        45deg,
+        #ff004c,
+        #ffae00,
+        #fff200,
+        #00ff88,
+        #00c3ff,
+        #8a2be2,
+        #ff00cc
+      );
+
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      text-align: center;
+    }
+
+    .final-message.show {
+      animation:
+        rainbowMove 2s linear infinite,
+        tiktokBounce 3s forwards;
+    }
+
+    /* CONFETTI */
+
+    .confetti-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 49;
+      overflow: hidden;
+    }
+
+    .confetti {
+      position: absolute;
+      top: -20px;
+      width: 10px;
+      height: 16px;
+      animation: confettiFall 3s linear forwards;
+    }
+
+    /* BALLOONS */
+
+    .balloon {
+      position: fixed;
+      bottom: -120px;
+      width: 60px;
+      height: 75px;
+      border-radius: 50%;
+      opacity: 0.85;
+      animation: floatUp 8s linear infinite;
+    }
+
+    .balloon:nth-child(1){ left:8%; background:#ff4d6d; }
+    .balloon:nth-child(2){ left:25%; background:#ffd166; }
+    .balloon:nth-child(3){ left:45%; background:#06d6a0; }
+    .balloon:nth-child(4){ left:65%; background:#4cc9f0; }
+    .balloon:nth-child(5){ left:85%; background:#c77dff; }
+
+    /* ANIMATIONS */
+
+    @keyframes coverOut {
+      to {
+        opacity: 0;
+      }
+    }
+
+    @keyframes memeReveal {
+      0% { opacity: 0; }
+      15% { opacity: 1; }
+      75% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes realReveal {
+      0% { opacity: 0; }
+      75% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes bonusOverlay {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes rainbowMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes tiktokBounce {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.3);
+      }
+
+      30% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    @keyframes confettiFall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+      }
+    }
+
+    @keyframes floatUp {
+      to {
+        transform: translateY(-120vh);
+      }
+    }
+
+    @keyframes pop {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+	
+	@keyframes bonusEntrance {
+
+	  0% {
+		opacity: 0;
+		transform: scale(0.4) rotate(-12deg);
+	  }
+
+	  18% {
+		opacity: 1;
+		transform: scale(1.12) rotate(4deg);
+	  }
+
+	  30% {
+		transform: scale(0.96) rotate(-2deg);
+	  }
+
+	  45% {
+		transform: scale(1.03) rotate(1deg);
+	  }
+
+	  100% {
+		opacity: 1;
+		transform: scale(1) rotate(0deg);
+	  }
+	}
+
+	@keyframes bonusOverlay {
+
+	  0% {
+		opacity: 0;
+		backdrop-filter: blur(0px);
+		background: rgba(0,0,0,0);
+	  }
+
+	  20% {
+		opacity: 1;
+		backdrop-filter: blur(4px);
+		background: rgba(0,0,0,0.25);
+	  }
+
+	  80% {
+		opacity: 1;
+		backdrop-filter: blur(4px);
+		background: rgba(0,0,0,0.25);
+	  }
+
+	  100% {
+		opacity: 0;
+		backdrop-filter: blur(0px);
+		background: rgba(0,0,0,0);
+	  }
+}
+  </style>
+</head>
+
+<body>
+
+  <!-- START -->
+
+  <div class="start-screen" id="startScreen">
+    <h2>Αν είσαι άνω των 16 πάτα εδώ 🎁</h2>
+    <button onclick="startSurprise()">Πάτα εδώ</button>
+  </div>
+
+  <!-- BALLOONS -->
+
+  <div id="balloons" class="hidden">
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+    <div class="balloon"></div>
+  </div>
+
+  <!-- MAIN -->
+
+  <main class="main-content hidden" id="mainContent">
+
+    <h1>🎉 Happy Birthday! 🎂</h1>
+
+    <p class="hint">
+      Πάτα πάνω στις κρυφές κάρτες 👀
+    </p>
+
+    <div class="gallery-wrap">
+
+      <div class="gallery">
+
+        <div class="photo-card" onclick="revealPhoto(this)">
+          <div class="cover">🎁</div>
+          <img class="real-photo" src="photo1.jpg">
+          <img class="meme-photo" src="meme1.jpg">
+        </div>
+
+        <div class="photo-card" onclick="revealPhoto(this)">
+          <div class="cover">🎁</div>
+          <img class="real-photo" src="photo2.jpg">
+          <img class="meme-photo" src="meme2.jpg">
+        </div>
+		
+		<div class="photo-card" onclick="revealPhoto(this)">
+          <div class="cover">🎁</div>
+          <img class="real-photo" src="photo3.jpg">
+          <img class="meme-photo" src="meme3.jpg">
+        </div>
+		
+		<div class="photo-card" onclick="revealPhoto(this)">
+          <div class="cover">🎁</div>
+          <img class="real-photo" src="photo12.jpg">
+          <img class="meme-photo" src="meme12.jpg">
+        </div>
+
+      </div>
+
+      <!-- BONUS MEME -->
+
+      <div class="bonus-popup" id="bonusPopup">
+        <div class="bonus-box">
+          <img src="bonus-meme.jpg">
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FINAL MESSAGE -->
+
+  <div class="final-message" id="finalMessage">
+    ΧΡΟΝΙΑ ΠΟΛΛΑ ΜΙΚΡΟΥΛΑ! 🎉
+  </div>
+
+  <!-- CONFETTI -->
+
+  <div class="confetti-container" id="confettiContainer"></div>
+
+  <!-- MUSIC -->
+
+  <audio id="birthdaySong" src="birthday.mp3"></audio>
+
+  <script>
+
+    let revealedCount = 0;
+    let bonusStarted = false;
+
+    function startSurprise() {
+	  const startScreen = document.getElementById("startScreen");
+	  const mainContent = document.getElementById("mainContent");
+	  const balloons = document.getElementById("balloons");
+
+	  startScreen.style.display = "none";
+	  startScreen.style.visibility = "hidden";
+	  startScreen.style.opacity = "0";
+	  startScreen.style.zIndex = "-1";
+
+	  mainContent.classList.remove("hidden");
+	  mainContent.style.display = "block";
+	  mainContent.style.visibility = "visible";
+	  mainContent.style.opacity = "1";
+
+	  balloons.classList.remove("hidden");
+	  balloons.style.display = "block";
+	  balloons.style.visibility = "visible";
+	  balloons.style.opacity = "1";
+
+	  const song = document.getElementById("birthdaySong");
+	  song.volume = 0.7;
+
+	  song.play().catch(() => {
+		console.log("Ο ήχος δεν ξεκίνησε αυτόματα.");
+	  });
+	}
+
+    function revealPhoto(card) {
+
+      if(card.classList.contains("revealed")) return;
+
+      card.classList.add("revealed");
+
+      revealedCount++;
+
+      if(revealedCount === 4 && !bonusStarted){
+
+        bonusStarted = true;
+
+        setTimeout(showBonusMeme, 7000);
+      }
+    }
+
+    function showBonusMeme() {
+
+      const bonusPopup = document.getElementById("bonusPopup");
+
+      bonusPopup.classList.add("show");
+
+      setTimeout(() => {
+
+        bonusPopup.classList.remove("show");
+
+        // καθυστέρηση πριν το ΧΡΟΝΙΑ ΠΟΛΛΑ
+
+        setTimeout(() => {
+
+          const finalMessage =
+            document.getElementById("finalMessage");
+
+          finalMessage.classList.add("show");
+
+          launchConfetti();
+
+          // εξαφάνιση μετά από 10 sec
+
+          setTimeout(() => {
+
+            finalMessage.classList.remove("show");
+
+          }, 10000);
+
+        }, 2000);
+
+      }, 5000);
+    }
+
+    function launchConfetti(){
+
+      const container =
+        document.getElementById("confettiContainer");
+
+      const colors = [
+        "#ff004c",
+        "#ffae00",
+        "#fff200",
+        "#00ff88",
+        "#00c3ff",
+        "#8a2be2",
+        "#ff00cc"
+      ];
+
+      for(let i=0; i<90; i++){
+
+        const piece =
+          document.createElement("div");
+
+        piece.className = "confetti";
+
+        piece.style.left =
+          Math.random() * 100 + "vw";
+
+        piece.style.backgroundColor =
+          colors[Math.floor(Math.random() * colors.length)];
+
+        piece.style.animationDuration =
+          (2 + Math.random() * 2) + "s";
+
+        container.appendChild(piece);
+
+        setTimeout(() => {
+          piece.remove();
+        }, 5000);
+      }
+    }
+
+  </script>
+
+</body>
+</html>

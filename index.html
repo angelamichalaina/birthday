@@ -91,6 +91,20 @@
       cursor: pointer;
       box-shadow: 0 8px 25px rgba(0,0,0,0.25);
     }
+	
+	@media (max-width: 600px) {
+	  .gallery {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 14px;
+		padding: 0 10px;
+	  }
+
+	  .photo-card {
+		width: 100%;
+		height: 270px;
+	  }
+}
 
     .cover,
     .meme-photo,
@@ -253,6 +267,7 @@
     .balloon:nth-child(3){ left:45%; background:#06d6a0; }
     .balloon:nth-child(4){ left:65%; background:#4cc9f0; }
     .balloon:nth-child(5){ left:85%; background:#c77dff; }
+	
 
     /* ANIMATIONS */
 
@@ -403,8 +418,9 @@
     <h1>🎉 Happy Birthday! 🎂</h1>
 
     <p class="hint">
-      Πάτα πάνω στις κρυφές κάρτες 👀
+      Χρόνια πολλά Δεσποινάκι! Σου εύχομαι μια ζωή γεμάτη υγεία, επιτυχίες και υπέροχες στιγμές!
     </p>
+	<p> Πάτα πάνω για να δεις τις φωτογραφίες </p>
 
     <div class="gallery-wrap">
 
